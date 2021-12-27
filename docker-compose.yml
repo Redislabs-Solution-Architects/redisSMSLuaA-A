@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  re-node1:
+    image: redislabs/redis:latest
+    # image: myredis
+    container_name: re-node1
+    cap_add:
+      - sys_resource
+      - ipc_lock
+    ulimits:
+      memlock: -1
+    environment:
+      # ALLOW_EMPTY_PASSWORD is recommended only for development.
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - '18070:8070'
+      - '18443:8443'
+      - '19443:9443'
+      - '14000-14005:12000-12005'
+    volumes:
+      - ./redispers1:/var/opt/redislabs/persist
+
+  re-node2:
+    image: redislabs/redis:latest
+    # image: myredis
+    container_name: re-node2
+    cap_add:
+      - sys_resource
+      - ipc_lock
+    ulimits:
+      memlock: -1
+    environment:
+      # ALLOW_EMPTY_PASSWORD is recommended only for development.
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - '28070:8070'
+      - '28443:8443'
+      - '29443:9443'
+      - '12010-12015:12000-12005'
+    volumes:
+      - ./redispers2:/var/opt/redislabs/persist
