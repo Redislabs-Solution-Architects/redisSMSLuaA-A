@@ -1,4 +1,4 @@
-package com.kanibl.redis.streams.simple;
+package com.jphaugla.redis.streams;
 
 import io.lettuce.core.*;
 import io.lettuce.core.api.StatefulRedisConnection;
@@ -15,7 +15,7 @@ public class RedisStreams101Consumer {
 
     public static void main(String[] args) {
 
-        RedisClient redisClient = RedisClient.create("redis://localhost:6379"); // change to reflect your environment
+        RedisClient redisClient = RedisClient.create("redis://localhost:12000"); // change to reflect your environment
         StatefulRedisConnection<String, String> connection = redisClient.connect();
         RedisCommands<String, String> syncCommands = connection.sync();
 
@@ -41,6 +41,7 @@ public class RedisStreams101Consumer {
                     System.out.println(message);
                     // Confirm that the message has been processed using XACK
                     syncCommands.xack(STREAMS_KEY, "application_1",  message.getId());
+                    // syncCommands.hset(message.getId(), message.getBody());
                 }
             }
 

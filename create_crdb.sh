@@ -1,1 +1,1 @@
-/opt/redislabs/bin/crdb-cli crdb create --name sample-crdb --memory-size 500mb --default-db-config '{ "port": 14555, "replication": false}' --instance fqdn=cluster1.local,username=jason.haugland@redislabs.com,password=redis123 --instance fqdn=cluster2.local,username=jason.haugland@redislabs.com,password=jasonrocks
+/opt/redislabs/bin/crdb-cli crdb create --name sample-crdb --memory-size 50mb --default-db-config '{ "port": 12000, "replication": false}' --instance fqdn=cluster1.local,username=r@r.com,password=test --instance fqdn=cluster2.local,username=r@r.com,password=test
