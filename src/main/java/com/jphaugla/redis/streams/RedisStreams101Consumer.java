@@ -13,7 +13,6 @@ public class RedisStreams101Consumer {
     public final static String HASH_KEY = "weather_sensor:wind:hash:";
     public final static String MESSAGE_KEY = "weather_sensor:wind:message:";
 
-
     public static void main(String[] args) {
 
         RedisClient redisClient = RedisClient.create("redis://localhost:12000"); // change to reflect your environment
@@ -52,7 +51,7 @@ public class RedisStreams101Consumer {
                     syncCommands.hmset(hashKey, body);
                     //  keep track of all the hash keys for this message body
                     syncCommands.sadd(messageKey, hashKey);
-                    if (numberParts == thisPart) {
+                    if (Integer.parseInt(numberParts) == Integer.parseInt(thisPart)) {
                         System.out.println("All Message parts received for " + messageKey);
                     }
                 }
