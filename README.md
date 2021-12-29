@@ -81,5 +81,12 @@ hgetall weather_sensor:wind:hash:1640798739595-2
 ```
 return all the hash key value pairs from the message part
 ## Additional tooling
-scripts are provided to support typical [crdb-cli](https://docs.redis.com/latest/rs/references/crdb-cli-reference/) commands
-The crdpurge.sh is very handy to efficiently do a "purgeall" of the database contents
+ * scripts are provided to support typical [crdb-cli](https://docs.redis.com/latest/rs/references/crdb-cli-reference/) commands
+    * The crdpurge.sh is very handy to efficiently do a "purgeall" of the database contents
+ * Can run a consumer against each "region" and both will receive all the messages.  The crdb logic will handle de-duplication of the redis objects.
+```bash
+ ./runconsumer.sh
+ ```
+```bash
+./runconsumer2.sh
+```
