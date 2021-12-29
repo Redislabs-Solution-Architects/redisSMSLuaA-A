@@ -14,8 +14,11 @@ public class RedisStreams101Consumer {
     public final static String MESSAGE_KEY = "weather_sensor:wind:message:";
 
     public static void main(String[] args) {
-
-        RedisClient redisClient = RedisClient.create("redis://localhost:12000"); // change to reflect your environment
+        String portNumber = "12000";
+        if (args != null && args.length != 0 ) {
+            portNumber = args[0];
+        }
+        RedisClient redisClient = RedisClient.create("redis://localhost:" + portNumber); // change to reflect your environment
         StatefulRedisConnection<String, String> connection = redisClient.connect();
         RedisCommands<String, String> syncCommands = connection.sync();
 
@@ -25,7 +28,6 @@ public class RedisStreams101Consumer {
         catch (RedisBusyException redisBusyException) {
             System.out.printf("\t Group '%s' already exists%n", "application_1");
         }
-
 
         System.out.println("Waiting for new messages");
 
