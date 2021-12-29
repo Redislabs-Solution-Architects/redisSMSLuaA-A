@@ -4,13 +4,14 @@ import io.lettuce.core.*;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
 
-
-import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class RedisStreams101Consumer {
 
     public final static String STREAMS_KEY = "weather_sensor:wind";
+    public final static String HASH_KEY = "weather_sensor:wind:hash:";
+    public final static String MESSAGE_KEY = "weather_sensor:wind:message:";
 
 
     public static void main(String[] args) {
@@ -23,7 +24,7 @@ public class RedisStreams101Consumer {
             syncCommands.xgroupCreate( XReadArgs.StreamOffset.from(STREAMS_KEY, "0-0"), "application_1"  );
         }
         catch (RedisBusyException redisBusyException) {
-            System.out.println( String.format("\t Group '%s' already exists", "application_1"));
+            System.out.printf("\t Group '%s' already exists%n", "application_1");
         }
 
 
@@ -41,7 +42,19 @@ public class RedisStreams101Consumer {
                     System.out.println(message);
                     // Confirm that the message has been processed using XACK
                     syncCommands.xack(STREAMS_KEY, "application_1",  message.getId());
-                    // syncCommands.hset(message.getId(), message.getBody());
+                    Map<String, String> body = message.getBody();
+                    String hashKey = HASH_KEY + message.getId();
+                    String messageId = body.get("message_id");
+                    String messageKey = MESSAGE_KEY + messageId;
+                    String numberParts = body.get("total_parts");
+                    String thisPart = body.get("this_part");
+                    //  write a hash for each message body
+                    syncCommands.hmset(hashKey, body);
+                    //  keep track of all the hash keys for this message body
+                    syncCommands.sadd(messageKey, hashKey);
+                    if (numberParts == thisPart) {
+                        System.out.println("All Message parts received for " + messageKey);
+                    }
                 }
             }
 

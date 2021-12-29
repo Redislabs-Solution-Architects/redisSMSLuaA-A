@@ -4,7 +4,6 @@ import io.lettuce.core.*;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -12,16 +11,17 @@ import java.util.Random;
 public class RedisStreams101Producer {
 
     public final static String STREAMS_KEY = "weather_sensor:wind";
+    public final static String MESSAGE_KEY = "MSG";
 
     public static void main(String[] args) {
 
         int nbOfMessageToSend = 1;
 
         if (args != null && args.length != 0 ) {
-            nbOfMessageToSend = Integer.valueOf(args[0]);
+            nbOfMessageToSend = Integer.parseInt(args[0]);
         }
 
-        System.out.println( String.format("\n Sending %s message(s)", nbOfMessageToSend));
+        System.out.printf("\n Sending %s message(s)%n", nbOfMessageToSend);
 
 
         RedisClient redisClient = RedisClient.create("redis://localhost:12000"); // change to reflect your environment
@@ -34,25 +34,31 @@ public class RedisStreams101Producer {
         for (int i = 0 ; i < nbOfMessageToSend ; i++) {
 
             Map<String, String> messageBody = new HashMap<>();
+            messageBody.put("message_id", MESSAGE_KEY + i);
+            int numberParts = new Random().nextInt(5) + 2;
+
             messageBody.put("speed", "15");
             messageBody.put("direction", "270");
             messageBody.put("sensor_ts", String.valueOf(System.currentTimeMillis()));
-            messageBody.put("loop_info", String.valueOf( i ));
-            Boolean whichone = new Random().nextBoolean();
-            String messageId = "";
-            if (whichone) {
-                messageBody.put("source_port", "12000");
-                messageId = syncCommands.xadd(
-                        STREAMS_KEY,
-                        messageBody);
-            } else {
-                messageBody.put("source_port", "12002");
-                 messageId = syncCommands2.xadd(
-                    STREAMS_KEY,
-                    messageBody);
+            for (int j = 1 ; j <= numberParts ; j++) {
+                messageBody.put("total_parts", String.valueOf(numberParts));
+                messageBody.put("this_part", String.valueOf(j));
+                boolean whichRedis = new Random().nextBoolean();
+                String messageId;
+                if (whichRedis) {
+                    messageBody.put("source_port", "12000");
+                    messageId = syncCommands.xadd(
+                            STREAMS_KEY,
+                            messageBody);
+                } else {
+                    messageBody.put("source_port", "12002");
+                    messageId = syncCommands2.xadd(
+                            STREAMS_KEY,
+                            messageBody);
+                }
+                System.out.printf("\tMessage %s : %s posted%n", messageId, messageBody);
             }
 
-            System.out.println(String.format("\tMessage %s : %s posted", messageId, messageBody));
         }
 
         System.out.println("\n");
