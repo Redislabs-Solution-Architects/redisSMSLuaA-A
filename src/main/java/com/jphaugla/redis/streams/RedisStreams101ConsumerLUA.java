@@ -9,8 +9,6 @@ import io.lettuce.core.api.sync.RedisCommands;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -18,8 +16,9 @@ import java.util.stream.Collectors;
 public class RedisStreams101ConsumerLUA {
 
     public final static String STREAMS_KEY = "weather_sensor:wind";
-    public final static String HASH_KEY = "weather_sensor:wind:hash:";
-    public final static String MESSAGE_KEY = "weather_sensor:wind:message:";
+    public final static String HASH_INSIDE = ":hash:";
+    //  to avoid cross slot error must use brackets so same hash slot
+    public final static String MESSAGE_PREFIX = "{wind:message:";
 
     public static void main(String[] args) throws JsonProcessingException {
         String portNumber = "12000";
@@ -59,25 +58,22 @@ public class RedisStreams101ConsumerLUA {
 
             if (!messages.isEmpty()) {
                 for (StreamMessage<String, String> message : messages) {
-                    System.out.println(message);
+                    // System.out.println(message);
                     // Confirm that the message has been processed using XACK
                     syncCommands.xack(STREAMS_KEY, "application_1",  message.getId());
                     Map<String, String> body = message.getBody();
-                    String hashKey = HASH_KEY + message.getId();
                     String messageId = body.get("message_id");
-                    String messageKey = MESSAGE_KEY + messageId;
+                    String messageKey = MESSAGE_PREFIX + messageId + "}";
+                    System.out.println(messageKey);
+                    String hashKey = messageKey + HASH_INSIDE + message.getId();
+                    // System.out.println(hashKey);
                     String numberParts = body.get("total_parts");
                     String thisPart = body.get("this_part");
-                    // List<String> KEYS = Collections.singletonList(hashKey);
-                    // List<Map<String, String>> ARGS = Collections.singletonList(body);
-                    // syncCommands.evalsha(luaSHA, ScriptOutputType.STATUS, KEYS, body.toString());
                     String json = new ObjectMapper().writeValueAsString(body);
-                    System.out.println(body.toString());
-                    syncCommands.evalsha(luaSHA, ScriptOutputType.STATUS, Arrays.asList(hashKey).toArray(new String[0]), json);
-                    //  write a hash for each message body
-                    // syncCommands.hmset(hashKey, body);
-                    //  keep track of all the hash keys for this message body
-                    // syncCommands.sadd(messageKey, hashKey);
+                    String[] KEYS = new String[2];
+                    KEYS[0]=hashKey;
+                    KEYS[1]=messageKey;
+                    syncCommands.evalsha(luaSHA, ScriptOutputType.STATUS, KEYS, json);
                     if (Integer.parseInt(numberParts) == Integer.parseInt(thisPart)) {
                         System.out.println("All Message parts received for " + messageKey);
                     }
