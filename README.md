@@ -36,8 +36,12 @@ git clone https://github.com/jphaugla/redisSMSLuaA-A
  * Open terminal and change to the github home to create the clusters and the clustered database
 ```bash
 ./create_redis_enterprise_clusters.sh 
+#  need to wait for cluster creation can use following command
+docker logs rp1
+#  wait for log to say "INFO __main__ MainThread: Done"
 ./setup_redis_enterprise_clusters.sh
-./create_crdb.sh
+# should return "Creating a new cluster... ok" from each cluster
+./crdcreate.sh
 ```
 To access the databases using redis-cli, leverage the two different port numbers
 ```bash
@@ -75,6 +79,7 @@ returns "set"
 smembers  weather_sensor:wind:message:MSG0
 ```
 returns all the message parts for this message
+Use one of the returned message parts in the hgetall below...
 ```bash
 hgetall weather_sensor:wind:hash:1640798739595-2
 ```
