@@ -43,6 +43,13 @@ docker logs rp1
 # should return "Creating a new cluster... ok" from each cluster
 ./crdcreate.sh
 ```
+* to stop docker use the following commands
+```bash
+docker stop rp1
+docker stop rp2
+docker rm rp1
+docker rm rp2
+```
 To access the databases using redis-cli, leverage the two different port numbers
 ```bash
 # this is first redis cluster
@@ -114,4 +121,23 @@ The individual redis sets and hashes are the same as above in the simple consume
  ```
 ```bash
 ./runconsumer2.sh
+```
+## run with open source single redis container
+ * stop docker if running from above
+```bash
+docker stop rp1
+docker stop rp2
+docker rm rp1
+docker rm rp2
+```
+ * start docker with docker compose
+```bash
+docker-compose up
+```
+```bash
+# edit port number in script to 6379
+ ./runconsumerLUA.sh
+ ```
+```bash
+./runproducerSingle.sh
 ```
