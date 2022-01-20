@@ -49,6 +49,8 @@ docker stop rp1
 docker stop rp2
 docker rm rp1
 docker rm rp2
+docker network rm network1
+docker network rm network2
 ```
 To access the databases using redis-cli, leverage the two different port numbers
 ```bash
@@ -91,6 +93,11 @@ Use one of the returned message parts in the hgetall below...
 hgetall weather_sensor:wind:hash:1640798739595-2
 ```
 return all the hash key value pairs from the message part
+Also is a hash with 2 fields floatIncr and totalParts doing an HINCRBYFLOAT and HINCRBY with each stream
+```bash
+hgetall weather_sensor:wind:message:MSG2:float
+```
+
 ## run with LUA consumer
 (Alternatively, this can be run through intellij)
 * Compile the code

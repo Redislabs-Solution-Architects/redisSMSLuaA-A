@@ -39,6 +39,7 @@ public class RedisStreams101Producer {
 
             messageBody.put("speed", "15");
             messageBody.put("direction", "270");
+            messageBody.put("floatUp","10.355");
             messageBody.put("sensor_ts", String.valueOf(System.currentTimeMillis()));
             for (int j = 1 ; j <= numberParts ; j++) {
                 messageBody.put("total_parts", String.valueOf(numberParts));

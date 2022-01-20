@@ -46,12 +46,15 @@ public class RedisStreams101Consumer {
                     syncCommands.xack(STREAMS_KEY, "application_1",  message.getId());
                     Map<String, String> body = message.getBody();
                     String hashKey = HASH_KEY + message.getId();
+                    Double floatUp = Double.valueOf(body.get("floatUp"));
                     String messageId = body.get("message_id");
                     String messageKey = MESSAGE_KEY + messageId;
                     String numberParts = body.get("total_parts");
                     String thisPart = body.get("this_part");
                     //  write a hash for each message body
                     syncCommands.hmset(hashKey, body);
+                    syncCommands.hincrbyfloat(messageKey + ":float", "floatIncr", floatUp);
+                    syncCommands.hincrby(messageKey + ":float", "totalParts", 1);
                     //  keep track of all the hash keys for this message body
                     syncCommands.sadd(messageKey, hashKey);
                     if (Integer.parseInt(numberParts) == Integer.parseInt(thisPart)) {
