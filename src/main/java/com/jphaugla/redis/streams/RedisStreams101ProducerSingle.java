@@ -22,9 +22,10 @@ public class RedisStreams101ProducerSingle {
         }
 
         System.out.printf("\n Sending %s message(s)%n", nbOfMessageToSend);
+        String REDIS_URI=System.getenv("REDIS_URI");
+        System.out.println("Redis URI=" + REDIS_URI);
+        RedisClient redisClient = RedisClient.create(REDIS_URI);
 
-
-        RedisClient redisClient = RedisClient.create("redis://localhost:6379"); // change to reflect your environment
         StatefulRedisConnection<String, String> connection = redisClient.connect();
         RedisCommands<String, String> syncCommands = connection.sync();
 

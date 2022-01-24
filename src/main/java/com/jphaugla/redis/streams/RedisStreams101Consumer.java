@@ -14,12 +14,10 @@ public class RedisStreams101Consumer {
     public final static String MESSAGE_KEY = "weather_sensor:wind:message:";
 
     public static void main(String[] args) {
-        String portNumber = "12000";
-        if (args != null && args.length != 0 ) {
-            portNumber = args[0];
-        }
-        System.out.println("port number is " + portNumber);
-        RedisClient redisClient = RedisClient.create("redis://localhost:" + portNumber); // change to reflect your environment
+
+        String REDIS_URI=System.getenv("REDIS_URI");
+        System.out.println("Redis URI=" + REDIS_URI);
+        RedisClient redisClient = RedisClient.create(REDIS_URI);
         StatefulRedisConnection<String, String> connection = redisClient.connect();
         RedisCommands<String, String> syncCommands = connection.sync();
 
