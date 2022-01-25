@@ -10,32 +10,46 @@ Mappings:
       "EC2AMI" : "ami-08e4e35cccc6189f4"
     us-east-2: # Ohio
       "REDISEC2AMI" : "ami-082a25bc38620fc4d"
+      "EC2AMI" : "ami-001089eb624938d9f"
     us-east-3: # NCALIF
       "REDISEC2AMI" : "ami-01773f954c3875420"
+      "EC2AMI" : "ami-02d03ce209db75523"
     us-west-2: # Oregon
       "REDISEC2AMI" : "ami-05037ab6f618ed336"
+      "EC2AMI" : "ami-066333d9c572b0680"
     ap-south-1: # Mumbai
       "REDISEC2AMI" : "ami-0eefc21aa52001198"
+      "EC2AMI" : "ami-0af25d0df86db00c1"
     ap-northeast-2: # Seoul
       "REDISEC2AMI" : "ami-0967b7ff9a7ba331e"
+      "EC2AMI" : "ami-0b1d3b1941f23c7d5"
     ap-southeast-1: # Singapore
       "REDISEC2AMI" : "ami-052d3e5a59fc4a877"
+      "EC2AMI" : "ami-0356b1cd4aa0ee970"
     ap-southeast-2: # Sydney 
       "REDISEC2AMI" : "ami-097cbef0451a30da5"
+      "EC2AMI" : "ami-01dc883c13e87eeda"
     ap-northeast-1: # Tokyo
       "REDISEC2AMI" : "ami-0ce04ab8bcd5de2e9"
+      "EC2AMI" : "ami-032d6db78f84e8bf5"
     eu-central-1: # Frankfurt
       "REDISEC2AMI" : "ami-09304ee2fe70b3aad"
+      "EC2AMI" : "ami-05cafdf7c9f772ad2"
     eu-west-1: # Ireland
       "REDISEC2AMI" : "ami-03b7776ede7f47475"
+      "EC2AMI" : "ami-01efa4023f0f3a042"
     eu-west-2: # London
       "REDISEC2AMI" : "ami-0c2b997e5c91153e0"
+      "EC2AMI" : "ami-0fdbd8587b1cf431e"
     eu-west-3: # Paris  
       "REDISEC2AMI" : "ami-0176733f200a89b17"
+      "EC2AMI" : "ami-031eb8d942193d84f"
     eu-north-1: # Stockholm 
       "REDISEC2AMI" : "ami-040e6fa2d290e7b9b"
+      "EC2AMI" : "ami-067a92fcca2611950"
     sa-east-1: # Sao Paulo 
       "REDISEC2AMI" : "ami-06d197a564493b29b"
+      "EC2AMI" : "ami-06078a297452ba5aa"
 
 Parameters:
   RedisDatabasePort: 
@@ -180,18 +194,11 @@ Resources:
              yum -y install git wget bind-utils
              /opt/redislabs/bin/rladmin cluster create name ${RedisNSRecord} persistent_path /var/opt/redislabs/persist  ephemeral_path /var/opt/redislabs/tmp  addr $(hostname -i) username ${ClusterUserName} password ${ClusterPassword} external_addr $(dig +short myip.opendns.com @resolver1.opendns.com) register_dns_suffix
              cd /home/ec2-user
-             git clone https://github.com/jphaugla/redisAthenaQuickSight.git
-             cd redisAthenaQuickSight
-             cut -d '|' -f1,2 data/nation.tbl | sed -e 's/|/ "/' | sed -e 's/$/"/' | sed -e 's/^/nation-/' | sed -e 's/^/SET /' > data/redis.data
-             sleep 120
-             cat data/redis.data | /opt/redislabs/bin/redis-cli -c -p ${RedisDatabasePort}
-             cat data/active_orders.data | /opt/redislabs/bin/redis-cli -c -p ${RedisDatabasePort}
-             cd /home/ec2-user
              mkdir rlec
              cd rlec
              wget https://s3.amazonaws.com/redis-enterprise-software-downloads/6.2.8/redislabs-6.2.8-53-rhel7-x86_64.tar
              tar xvf redislabs-6.2.8-53-rhel7-x86_64.tar
-             ./install.sh -y
+             ./install.sh -y --allow-same-version
 
   RedisEC2VM2:
     Type:  AWS::EC2::Instance
@@ -216,16 +223,17 @@ Resources:
       UserData:
         Fn::Base64:
           !Sub |
-             #!/bin/bash -xe
-             sudo  bash -l
-             yum -y install bind-utils git wget
-             /opt/redislabs/bin/rladmin cluster join nodes $(dig +short node1.${ClusterName}.${HostedZoneName}) persistent_path /var/opt/redislabs/persist  ephemeral_path /var/opt/redislabs/tmp  addr $(hostname -i) username ${ClusterUserName} password ${ClusterPassword} 
-             cd /home/ec2-user
-             mkdir rlec
-             cd rlec
-             wget https://s3.amazonaws.com/redis-enterprise-software-downloads/6.2.8/redislabs-6.2.8-53-rhel7-x86_64.tar
-             tar xvf redislabs-6.2.8-53-rhel7-x86_64.tar
-             ./install.sh -y
+              #!/bin/bash -xe
+              sudo  bash -l
+              yum -y install bind-utils git wget
+              cd /home/ec2-user
+              mkdir rlec
+              cd rlec
+              wget https://s3.amazonaws.com/redis-enterprise-software-downloads/6.2.8/redislabs-6.2.8-53-rhel7-x86_64.tar
+              tar xvf redislabs-6.2.8-53-rhel7-x86_64.tar
+              /opt/redislabs/bin/rl_uninstall.sh
+              ./install.sh -y --allow-same-version
+              /opt/redislabs/bin/rladmin cluster join nodes ${RedisEC2VM1.PrivateIp} persistent_path /var/opt/redislabs/persist  ephemeral_path /var/opt/redislabs/tmp  addr $(hostname -i) username ${ClusterUserName} password ${ClusterPassword} external_addr $(dig +short myip.opendns.com @resolver1.opendns.com)
 
   RedisEC2VM3:
     Condition: Create-Three
@@ -259,7 +267,7 @@ Resources:
              cd rlec
              wget https://s3.amazonaws.com/redis-enterprise-software-downloads/6.2.8/redislabs-6.2.8-53-rhel7-x86_64.tar
              tar xvf redislabs-6.2.8-53-rhel7-x86_64.tar
-             ./install.sh -y
+             ./install.sh -y --allow-same-version
 
   AppEC2Instance:
     Type:  AWS::EC2::Instance
