@@ -51,7 +51,7 @@ public class RedisStreams101Consumer {
                     String thisPart = body.get("this_part");
                     //  write a hash for each message body
                     syncCommands.hmset(hashKey, body);
-                    syncCommands.hincrbyfloat(messageKey + ":float", "floatIncr", floatUp);
+                    // syncCommands.hincrbyfloat(messageKey + ":float", "floatIncr", floatUp);
                     syncCommands.hincrby(messageKey + ":float", "totalParts", 1);
                     //  keep track of all the hash keys for this message body
                     syncCommands.sadd(messageKey, hashKey);
@@ -63,6 +63,7 @@ public class RedisStreams101Consumer {
 
 
         }
+
 
     }
 
