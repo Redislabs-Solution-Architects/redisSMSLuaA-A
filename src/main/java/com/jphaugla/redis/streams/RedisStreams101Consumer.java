@@ -39,12 +39,11 @@ public class RedisStreams101Consumer {
 
             if (!messages.isEmpty()) {
                 for (StreamMessage<String, String> message : messages) {
-                    System.out.println(message);
+                    // System.out.println(message);
                     // Confirm that the message has been processed using XACK
                     syncCommands.xack(STREAMS_KEY, "application_1",  message.getId());
                     Map<String, String> body = message.getBody();
                     String hashKey = HASH_KEY + message.getId();
-                    Double floatUp = Double.valueOf(body.get("floatUp"));
                     String messageId = body.get("message_id");
                     String messageKey = MESSAGE_KEY + messageId;
                     String numberParts = body.get("total_parts");
@@ -56,13 +55,14 @@ public class RedisStreams101Consumer {
                     //  keep track of all the hash keys for this message body
                     syncCommands.sadd(messageKey, hashKey);
                     if (Integer.parseInt(numberParts) == Integer.parseInt(thisPart)) {
-                        System.out.println("All Message parts received for " + messageKey);
+                        // System.out.println("All Message parts received for " + messageKey);
                     }
                 }
             }
 
 
         }
+        
 
 
     }

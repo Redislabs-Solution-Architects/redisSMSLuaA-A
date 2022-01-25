@@ -46,7 +46,7 @@ public class RedisStreams101ProducerSingle {
                 messageId = syncCommands.xadd(
                             STREAMS_KEY,
                             messageBody);
-                System.out.printf("\tMessage %s : %s posted%n", messageId, messageBody);
+               // System.out.printf("\tMessage %s : %s posted%n", messageId, messageBody);
             }
 
         }
