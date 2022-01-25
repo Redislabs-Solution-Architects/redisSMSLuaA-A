@@ -168,6 +168,15 @@ Resources:
       'AWS::CloudFormation::Designer':
         id: 7aa57bac-380e-4523-a72b-ef898d0a0367
 
+  IPAddressVM1:
+    Type: AWS::EC2::EIP
+
+  IPAssocVM1:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      InstanceId: !Ref RedisEC2VM1
+      EIP: !Ref IPAddressVM1
+
   RedisEC2VM1:
     Type:  AWS::EC2::Instance
     DependsOn: 
@@ -199,6 +208,17 @@ Resources:
              wget https://s3.amazonaws.com/redis-enterprise-software-downloads/6.2.8/redislabs-6.2.8-53-rhel7-x86_64.tar
              tar xvf redislabs-6.2.8-53-rhel7-x86_64.tar
              ./install.sh -y --allow-same-version
+
+  IPAddressVM2:
+    Condition: Do-Two
+    Type: AWS::EC2::EIP
+
+  IPAssocVM2:
+    Condition: Do-Two
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      InstanceId: !Ref RedisEC2VM2
+      EIP: !Ref IPAddressVM2
 
   RedisEC2VM2:
     Type:  AWS::EC2::Instance
@@ -235,6 +255,17 @@ Resources:
               ./install.sh -y --allow-same-version
               /opt/redislabs/bin/rladmin cluster join nodes ${RedisEC2VM1.PrivateIp} persistent_path /var/opt/redislabs/persist  ephemeral_path /var/opt/redislabs/tmp  addr $(hostname -i) username ${ClusterUserName} password ${ClusterPassword} external_addr $(dig +short myip.opendns.com @resolver1.opendns.com)
 
+  IPAddressVM3:
+    Condition: Create-Three
+    Type: AWS::EC2::EIP
+
+  IPAssocVM3:
+    Condition: Create-Three
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      InstanceId: !Ref RedisEC2VM3
+      EIP: !Ref IPAddressVM3
+
   RedisEC2VM3:
     Condition: Create-Three
     Type:  AWS::EC2::Instance
@@ -258,16 +289,17 @@ Resources:
       UserData:
         Fn::Base64:
           !Sub |
-             #!/bin/bash -xe
-             sudo  bash -l
-             yum -y install bind-utils git wget
-             /opt/redislabs/bin/rladmin cluster join nodes $(dig +short node1.${ClusterName}.${HostedZoneName}) persistent_path /var/opt/redislabs/persist  ephemeral_path /var/opt/redislabs/tmp  addr $(hostname -i) username ${ClusterUserName} password ${ClusterPassword} 
-             cd /home/ec2-user
-             mkdir rlec
-             cd rlec
-             wget https://s3.amazonaws.com/redis-enterprise-software-downloads/6.2.8/redislabs-6.2.8-53-rhel7-x86_64.tar
-             tar xvf redislabs-6.2.8-53-rhel7-x86_64.tar
-             ./install.sh -y --allow-same-version
+              #!/bin/bash -xe
+              sudo  bash -l
+              yum -y install bind-utils git wget
+              cd /home/ec2-user
+              mkdir rlec
+              cd rlec
+              wget https://s3.amazonaws.com/redis-enterprise-software-downloads/6.2.8/redislabs-6.2.8-53-rhel7-x86_64.tar
+              tar xvf redislabs-6.2.8-53-rhel7-x86_64.tar
+              /opt/redislabs/bin/rl_uninstall.sh
+              ./install.sh -y --allow-same-version
+              /opt/redislabs/bin/rladmin cluster join nodes ${RedisEC2VM1.PrivateIp} persistent_path /var/opt/redislabs/persist  ephemeral_path /var/opt/redislabs/tmp  addr $(hostname -i) username ${ClusterUserName} password ${ClusterPassword} external_addr $(dig +short myip.opendns.com @resolver1.opendns.com)
 
   AppEC2Instance:
     Type:  AWS::EC2::Instance

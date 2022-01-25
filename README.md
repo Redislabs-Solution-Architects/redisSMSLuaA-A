@@ -20,12 +20,14 @@ Both a simple consumer and a consumer using LUA to eliminate round trips to the 
 
 [Docker for windows](https://docs.docker.com/docker-for-windows/#advanced)
 
+* Another option available here is to run on redis enterprise on AWS using CloudFormation
+
 ## Links that help!
  * [Active/Active docker under crdt-application](https://github.com/RedisLabs/redis-for-dummies)
  * [Getting Started with Redis Streams and java github](https://github.com/tgrall/redis-streams-101-java)
  * [Stackoverflow LUA with DICT](https://stackoverflow.com/questions/58999662/redis-how-to-hmset-a-dictionary-from-a-lua-script)
  * [Redis Active/Active CLI reference](https://docs.redis.com/latest/rs/references/crdb-cli-reference/)
-## Create Redis Enterprise Active/Active database
+## Create Redis Enterprise Active/Active database (Option 1)
  * Prepare Docker environment-see the Prerequisites section above...
  * Clone the github 
 ```bash
@@ -148,3 +150,24 @@ docker-compose up
 ```bash
 ./runproducerSingle.sh
 ```
+## Run using AWS Cloudformation
+Script is aware of selected region.  So use desired method to set the region.  One easy way is the set the region in aws config file
+
+* Set the environment for subsequent steps
+```bash
+source setEnvironment.sh 
+```
+* Create S3 bucket needed for manipulating CloudFormation scripts
+```bash
+./cfns3deploy.sh
+```
+* Add keypair for the region
+```bash
+./createKeyPair.sh
+```
+* Deploy and run script
+```bash
+./cfnpackage.sh
+./cfndeploy.sh
+```
+
