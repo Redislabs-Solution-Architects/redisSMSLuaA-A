@@ -181,6 +181,7 @@ Resources:
     Type:  AWS::EC2::Instance
     DependsOn: 
       - VPCStack
+      - IPAddressVM1
     Properties:
       ImageId: 
         Fn::FindInMap:
@@ -226,6 +227,7 @@ Resources:
     DependsOn: 
       - VPCStack
       - RedisEC2VM1
+      - IPAddressVM2
     Properties:
       ImageId: 
         Fn::FindInMap:
@@ -273,6 +275,7 @@ Resources:
     DependsOn: 
       - VPCStack
       - RedisEC2VM1
+      - IPAddressVM3
     Properties:
       ImageId: 
         Fn::FindInMap:
@@ -330,11 +333,22 @@ Resources:
              cd /home/ec2-user
              git clone https://github.com/jphaugla/redisSMSLuaA-A.git
              sudo chown -R ec2-user:ec2-user redisSMSLuaA-A
+             yum -y install autoconf automake make gcc-c++
+             yum -y install pcre-devel zlib-devel libmemcached-devel libevent-devel openssl-devel
+             git clone git://github.com/RedisLabs/memtier_benchmark.git
+             cd memtier_benchmark
+             autoreconf -ivf
+             ./configure
+             make
+             make install
+             cd /home/ec2-user
+             chown -R ec2-user:ec2-user memtier_benchmark
+             
 
   RedisARecord1:
     Type: AWS::Route53::RecordSet
     DependsOn: 
-      - RedisEC2VM1
+      - IPAddressVM1
     Properties:
       HostedZoneId: !Ref HostedZoneId
       Comment: DNS name for my instance
@@ -342,13 +356,13 @@ Resources:
       Type: A
       TTL: 900
       ResourceRecords:
-        - !GetAtt RedisEC2VM1.PublicIp
+        - !Ref IPAddressVM1
 
   RedisARecord2:
     Condition: Do-Two
     Type: AWS::Route53::RecordSet
     DependsOn: 
-      - RedisEC2VM2
+      - IPAddressVM2
     Properties:
       HostedZoneId: !Ref HostedZoneId
       Comment: DNS name for my instance
@@ -356,7 +370,7 @@ Resources:
       Type: A
       TTL: 900
       ResourceRecords:
-        - !GetAtt RedisEC2VM2.PublicIp
+        - !Ref IPAddressVM2
 
   RedisARecord3:
     Condition: Create-Three
@@ -370,7 +384,7 @@ Resources:
       Type: A
       TTL: 900
       ResourceRecords:
-        - !GetAtt RedisEC2VM3.PublicIp
+        - !Ref IPAddressVM3
 
   RedisNSRecord:
     Type: AWS::Route53::RecordSet
