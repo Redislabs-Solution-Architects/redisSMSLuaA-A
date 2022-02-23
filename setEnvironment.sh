@@ -32,3 +32,8 @@ export EC2_INSTANCE_TYPE=r4.2xlarge
 export KEY_PAIR=${PREFIX}_${REGION}
 # number of instances between 1 and 3
 export NUMBER_INSTANCES=2
+# VPC Cidr
+export VPC_CIDR=10.1.0.0/16
+#  Create Elastic IPs for fixed IPS on redis nodes
+export CREATE_ELASTIC_IPS=false
+export REDIS_URI=redis://redis-${REDISPORT}.${REGION}.${PREFIX}.demo-rlec.redislabs.com:${REDISPORT}

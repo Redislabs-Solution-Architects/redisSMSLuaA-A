@@ -18,7 +18,7 @@ public class RedisStreams101ConsumerLUA {
     public final static String STREAMS_KEY = "weather_sensor:wind";
     public final static String HASH_INSIDE = ":hash:";
     //  to avoid cross slot error must use brackets so same hash slot
-    public final static String MESSAGE_PREFIX = "{wind:message:";
+    public final static String MESSAGE_PREFIX = "{weather_sensor:wind}:message";
     public final static String APPLICATION_NAME = "application_1";
 
     public static void main(String[] args) throws JsonProcessingException {
@@ -62,7 +62,7 @@ public class RedisStreams101ConsumerLUA {
                     // syncCommands.xack(STREAMS_KEY, APPLICATION_NAME,  message.getId());
                     Map<String, String> body = message.getBody();
                     String messageId = body.get("message_id");
-                    String messageKey = MESSAGE_PREFIX + messageId + "}";
+                    String messageKey = MESSAGE_PREFIX + messageId;
                     System.out.println(messageKey);
                     String hashKey = messageKey + HASH_INSIDE + message.getId();
                     // System.out.println(hashKey);

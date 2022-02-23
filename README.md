@@ -69,10 +69,12 @@ mvn clean verify
 ```
  *  run the consumer   
 ```bash
+export REDIS_URI=redis://localhost:12000
 ./runconsumer.sh
 ```
  * run the producer
 ```bash
+# will produce to localhost 12000 and 12002.   (a little bit odd maybe)
 ./runproducer.sh
 ```
 ### Verify the results
@@ -102,17 +104,21 @@ hgetall weather_sensor:wind:message:MSG2:float
 
 ## run with LUA consumer
 (Alternatively, this can be run through intellij)
-* Compile the code
+* Compile the code.  These will use the REDIS_URI environment variable from setEnvironment.sh
 ```bash
 mvn clean verify
 ```
-*  run the consumer
+* run the consumer
+* These scripts use REDIS_URI environment variable for connectivity
+*NOTE:* this use of one hash key for all the keys is needed because LUA only can function on redis objects in the exact same hash slot. Using this type of technique can severely skew the data so is for demo purpose only.
 ```bash
+export REDIS_URI=redis://localhost:12000
 ./runconsumerLUA.sh
 ```
-*   run the producer
+*   run the producer.  
 ```bash
-./runproducer.sh
+export REDIS_URI=redis://localhost:12000
+./runproducerSingle.sh
 ```
 ### Verify the results
 ```bash
@@ -126,10 +132,12 @@ The individual redis sets and hashes are the same as above in the simple consume
     * The crdpurge.sh is very handy to efficiently do a "purgeall" of the database contents
  * Can run a consumer against each "region" and both will receive all the messages.  The crdb logic will handle de-duplication of the redis objects.
 ```bash
+export REDIS_URI=redis://localhost:12000
  ./runconsumer.sh
  ```
 ```bash
-./runconsumer2.sh
+export REDIS_URI=redis://localhost:12002
+./runconsumer.sh
 ```
 ## run with open source single redis container
  * stop docker if running from above
@@ -145,9 +153,11 @@ docker-compose up
 ```
 ```bash
 # edit port number in script to 6379
+export REDIS_URI=redis://localhost:12000
  ./runconsumerLUA.sh
  ```
 ```bash
+export REDIS_URI=redis://localhost:12000
 ./runproducerSingle.sh
 ```
 ## Run using AWS Cloudformation
