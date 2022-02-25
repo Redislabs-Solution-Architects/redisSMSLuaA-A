@@ -119,7 +119,7 @@ Parameters:
   EC2InstType:
     Description: Amazon EC2 Instance Type for app node 
     Type: String
-    Default: i3.large
+    Default: i3.i2xlarge
     AllowedValues:
       - r4.large
       - r4.xlarge
