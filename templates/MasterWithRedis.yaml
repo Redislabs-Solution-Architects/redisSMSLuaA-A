@@ -356,6 +356,12 @@ Resources:
       Tags:
         - Key: 'Name'
           Value: !Join ['',  [!Ref AWS::StackName, 'APPEC2'] ]
+      BlockDeviceMappings:
+      - DeviceName: "/dev/xvda"
+        Ebs:
+          DeleteOnTermination: 'true'
+          VolumeSize: '60'
+          VolumeType: gp2
       UserData:
         Fn::Base64:
           !Sub |
@@ -377,6 +383,18 @@ Resources:
              make install
              cd /home/ec2-user
              chown -R ec2-user:ec2-user memtier_benchmark
+             cp redisSMSLuaA-A/grafana.repo /etc/yum.repos.d
+             cp redisSMSLuaA-A/prometheus.repo /etc/yum.repos.d
+             cp redisSMSLuaA-A/prometheus.yml /etc/prometheus
+             echo "      - targets: [${RedisNSRecord}:${RedisDatabasePort}]">> /etc/prometheus/prometheus.yml
+             yum -y makecache fast
+             yum install -y grafana
+             systemctl enable --now grafana-server.service
+             systemctl enable --now prometheus.service
+             yum install -y prometheus2.x86_64
+             grafana-cli plugins install redis-datasource
+             systemctl restart grafana
+             
 
   RedisARecord1E:
     Type: AWS::Route53::RecordSet
