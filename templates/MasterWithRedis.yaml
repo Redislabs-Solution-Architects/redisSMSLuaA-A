@@ -390,7 +390,7 @@ Resources:
              systemctl enable --now grafana-server.service
              yum install -y prometheus2.x86_64
              cp -f redisSMSLuaA-A/prometheus.yml /etc/prometheus
-             echo "      - targets: [${RedisNSRecord}:${RedisDatabasePort}]">> /etc/prometheus/prometheus.yml
+             echo "      - targets: [${RedisNSRecord}:8070]">> /etc/prometheus/prometheus.yml
              systemctl enable --now prometheus.service
              grafana-cli plugins install redis-datasource
              systemctl restart grafana-server
