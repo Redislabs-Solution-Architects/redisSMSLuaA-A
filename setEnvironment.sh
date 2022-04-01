@@ -26,10 +26,10 @@ export CLUSTERURL=${CLUSTERUSERNAME}:${CLUSTERPASSWORD}
 export CREATE_ALL=false
 #  controls if redis connector is created
 export CREATE_CONNECTOR=false
+#  ec2 instance type for app node
+export EC2_INSTANCE_TYPE=i3.2xlarge
 #  ec2 instance type for Redis instances
-export EC2_INSTANCE_TYPE=r4.2xlarge
-+#  ec2 instance type for Redis instances
-+export REDIS_EC2_INSTANCE_TYPE=i3.2xlarge
+export REDIS_EC2_INSTANCE_TYPE=r4.2xlarge
 #  key pair for redis ec2 instances
 export KEY_PAIR=${PREFIX}_${REGION}
 # number of instances between 1 and 3
