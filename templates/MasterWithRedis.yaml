@@ -399,6 +399,9 @@ Resources:
              systemctl enable --now prometheus.service
              grafana-cli plugins install redis-datasource
              systemctl restart grafana-server
+             cd /home/ec2-user
+             git clone https://github.com/redis-developer/riot.git
+             chown -R ec2-user:ec2-user riot
              
 
   RedisARecord1E:
