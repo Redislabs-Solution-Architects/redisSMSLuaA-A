@@ -367,6 +367,7 @@ Resources:
           !Sub |
              #!/bin/bash -xe
              sudo  bash -l
+             yum update -y
              yum -y install git wget bind-utils 
              wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo
              sed -i s/\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo
@@ -395,19 +396,22 @@ Resources:
              systemctl enable --now grafana-server.service
              yum install -y prometheus2.x86_64
              cp -f redisSMSLuaA-A/prometheus.yml /etc/prometheus
-             echo "      - targets: [${RedisNSRecord}:8070]">> /etc/prometheus/prometheus.yml
+             echo "      - targets: [${RedisEC2VM1.PrivateIp}:8070]">> /etc/prometheus/prometheus.yml
              systemctl enable --now prometheus.service
              grafana-cli plugins install redis-datasource
              systemctl restart grafana-server
              cd /home/ec2-user
              git clone https://github.com/redis-developer/riot.git
              chown -R ec2-user:ec2-user riot
+             git clone https://github.com/jphaugla/redisGearsDocker.git
+             chown -R ec2-user:ec2-user redisGearsDocker
              cd /home/ec2-user
              git clone https://github.com/jphaugla/redisearchStock.git
              chown -R ec2-user:ec2-user redisearchStock
              cd /home/ec2-user
-             git clone https://github.com/jphaugla/redisGearsDocker.git
-             chown -R ec2-user:ec2-user redisGearsDocker
+             yum install nginx -y
+             yum install python3-pip python3-devel python3-setuptools -y
+             yum install build-essential -y
              
 
   RedisARecord1E:
