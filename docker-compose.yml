@@ -11,6 +11,7 @@ services:
       - ALL
     ports:
       - "18443:8443"
+      - "12000:12000"
     volumes:
       - ./:/home
     dns: 172.22.0.20
